@@ -49,6 +49,7 @@ export default class PointPresenter {
       point, destination, allOffers, allDestinations, checkedOffers,
       onRollupClick: this.#replaceFormToPoint,
       onFormSubmit: this.#onFormSubmit,
+      onDeleteClick: this.#onDeleteClick
     });
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
@@ -113,6 +114,15 @@ export default class PointPresenter {
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       point
+    );
+    this.#replaceFormToPoint();
+  };
+
+  #onDeleteClick = () => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      this.#point
     );
     this.#replaceFormToPoint();
   };

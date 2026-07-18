@@ -1,5 +1,5 @@
 import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const.js';
-import { render } from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 import { sortByDay, sortByPrice, sortByTime } from '../utils/sort.js';
 import ListView from '../view/list-view.js';
 import SortView from '../view/sort-view.js';
@@ -9,6 +9,7 @@ import PointPresenter from './point-presenter.js';
 export default class BoardPresenter {
   #listComponent = new ListView();
   #sortComponent = null;
+  #emptyListComponent = null
   #currentSortType = SortTypes.DEFAULT;
   #container = null;
   #pointsModel = null;
@@ -71,8 +72,8 @@ export default class BoardPresenter {
 
   #renderList() {
     if (this.points.length === 0) {
-      const emptyList = new EmptyListView({ filterType: FilterTypes.EVERYTHING });
-      render(emptyList, this.#container);
+      this.#emptyListComponent = new EmptyListView({ filterType: FilterTypes.EVERYTHING });
+      render(this.#emptyListComponent, this.#container);
       return;
     }
 
@@ -85,25 +86,25 @@ export default class BoardPresenter {
   #renderSort() {
     this.#sortComponent = new SortView({
       onSortTypeChange: this.#handleSortTypeChange,
+      currentSortType: this.#currentSortType
     });
     render(this.#sortComponent, this.#container);
   }
 
-  #clearPointsList() {
+  #clearBoard({resetSortType = false} = {}) {
     this.#pointPresenters.forEach((presenter) => {
       presenter.destroy();
     });
     this.#pointPresenters.clear();
+    remove(this.#sortComponent);
+    remove(this.#emptyListComponent);
+    if (resetSortType) {
+      this.#currentSortType = SortTypes.DEFAULT;
+    }
   }
 
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
-  };
-
-  #handlePointChange = (updatedPoint) => {
-    this.#pointsModel.updatePoint(updatedPoint);
-    const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(updatedPoint);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, destination, checkedOffers, allOffers, allDestinations);
   };
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -128,11 +129,12 @@ export default class BoardPresenter {
       }
         break;
       case UpdateType.MINOR:
-        this.#clearPointsList();
-        this.#renderPoints();
+        this.#clearBoard();
+        this.#renderList();
         break;
       case UpdateType.MAJOR:
-        //
+        this.#clearBoard({ resetSortType: true });
+        this.#renderList();
         break;
     }
   };
@@ -142,7 +144,7 @@ export default class BoardPresenter {
       return;
     }
     this.#currentSortType = sortType;
-    this.#clearPointsList();
-    this.#renderPoints();
+    this.#clearBoard();
+    this.#renderList();
   };
 }
