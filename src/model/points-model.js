@@ -10,7 +10,7 @@ export default class PointsModel extends Observable {
   }
 
   set points(points) {
-    this.#points = points;
+    this.#points = [...points];
   }
 
   getById(id) {
