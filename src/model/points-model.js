@@ -1,9 +1,15 @@
-import {points as pointsMocks} from '../mock/points.js';
 import { updateItem } from '../utils/common.js';
+import { UpdateType } from '../const.js';
 import Observable from '../framework/observable.js';
 
 export default class PointsModel extends Observable {
-  #points = pointsMocks;
+  #pointsApiService = null;
+  #points = [];
+
+  constructor({ pointsApiService }) {
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
   get points() {
     return [...this.#points];
@@ -13,8 +19,35 @@ export default class PointsModel extends Observable {
     this.#points = [...points];
   }
 
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch (err) {
+      this.#points = [];
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
   getById(id) {
     return this.#points.find((point) => point.id === id);
+  }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   }
 
   addPoint(updateType, newPoint) {
