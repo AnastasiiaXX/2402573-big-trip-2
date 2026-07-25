@@ -6,6 +6,7 @@ import ListView from '../view/list-view.js';
 import SortView from '../view/sort-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import PointPresenter from './point-presenter.js';
+import NewPointPresenter from './new-point-presenter.js';
 
 export default class BoardPresenter {
   #listComponent = new ListView();
@@ -18,9 +19,11 @@ export default class BoardPresenter {
   #destinationsModel = null;
   #offersModel = null;
   #filtersModel = null;
+  #newPointPresenter = null;
+  #newPointButton = null;
   #pointPresenters = new Map();
 
-  constructor({ container, pointsModel, destinationsModel, offersModel, filtersModel }) {
+  constructor({ container, pointsModel, destinationsModel, offersModel, filtersModel, newPointButton }) {
     this.#container = container;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
@@ -29,6 +32,17 @@ export default class BoardPresenter {
 
     this.#pointsModel.addObserver(this.#handleModelChange);
     this.#filtersModel.addObserver(this.#handleModelChange);
+
+    this.#newPointPresenter = new NewPointPresenter({
+      container: this.#listComponent.element,
+      allDestinations: this.#destinationsModel.destinations,
+      allOffers: this.#offersModel.offers,
+      onDataChange: this.#handleViewAction,
+      onFormClose: this.#handleNewPointFormClose,
+    });
+
+    this.#newPointButton = newPointButton;
+    this.#newPointButton.addEventListener('click', this.#handleNewPointButtonClick);
   }
 
   get points() {
@@ -52,6 +66,7 @@ export default class BoardPresenter {
 
   init() {
     this.#renderList();
+    this.#newPointButton.disabled = false;
   }
 
   #getPointData(point) {
@@ -113,6 +128,7 @@ export default class BoardPresenter {
   }
 
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -155,5 +171,16 @@ export default class BoardPresenter {
     this.#currentSortType = sortType;
     this.#clearBoard();
     this.#renderList();
+  };
+
+  #handleNewPointButtonClick = () => {
+    this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#handleModeChange();
+    this.#newPointPresenter.init();
+    this.#newPointButton.disabled = true;
+  };
+
+  #handleNewPointFormClose = () => {
+    this.#newPointButton.disabled = false;
   };
 }

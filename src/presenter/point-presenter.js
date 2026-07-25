@@ -47,6 +47,7 @@ export default class PointPresenter {
 
     this.#editPointComponent = new EditFormView({
       point, destination, allOffers, allDestinations, checkedOffers,
+      isEditMode: true,
       onRollupClick: this.#replaceFormToPoint,
       onFormSubmit: this.#onFormSubmit,
       onDeleteClick: this.#onDeleteClick

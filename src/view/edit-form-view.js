@@ -43,7 +43,7 @@ function createOffersTemplate(allOffers, checkedIds) {
     .join('');
 }
 
-function createEditFormTemplate(point, destination, allDestinations, allOffers) {
+function createEditFormTemplate(point, destination, allDestinations, allOffers, isEditMode) {
   const { basePrice, dateFrom, dateTo, type, id } = point;
   const offersByType = allOffers.find((offer) => offer.type === type);
   const typeOffers = offersByType?.offers ?? [];
@@ -70,7 +70,7 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers) 
                     <label class="event__label  event__type-output" for="event-destination-${id}">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination.name}" list="destination-list-${id}">
+                    <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destination?.name ?? ''}" list="destination-list-${id}">
                     <datalist id="destination-list-${id}">
                       ${createDestinationsTemplate(allDestinations)}
                     </datalist>
@@ -93,21 +93,21 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers) 
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
-                  <button class="event__rollup-btn" type="button">
+                  <button class="event__reset-btn" type="reset">${isEditMode ? 'Delete' : 'Cancel'}</button>
+                  ${isEditMode ? `<button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
-                  </button>
+                  </button>` : ''}
                 </header>
                 <section class="event__details">
-                  <section class="event__section  event__section--offers">
+                  ${typeOffers.length ? `<section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                     <div class="event__available-offers">
                      ${createOffersTemplate(typeOffers, point.offers)}
                     </div>
-                  </section>
+                  </section>` : ''}
 
-                  <section class="event__section  event__section--destination">
+                  ${destination && (destination.description || (destination.pictures && destination.pictures.length)) ? `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${destination.description}</p>
                     <div class="event__photos-container">
@@ -115,7 +115,7 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers) 
                         ${destination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
                       </div>
                      </div>
-                  </section>
+                  </section>` : ''}
                 </section>
               </form>
             </li>`;
@@ -127,23 +127,27 @@ export default class EditFormView extends AbstractStatefulView {
   #onRollupClick = null;
   #onFormSubmit = null;
   #onDeleteClick = null;
+  #onCancelClick = null;
   #datePickerFrom = null;
   #datePickerTo = null;
+  #isEditMode = true;
 
-  constructor({ point, destination, allDestinations, allOffers, onRollupClick, onFormSubmit, onDeleteClick }) {
+  constructor({ point, destination, allDestinations, allOffers, isEditMode, onRollupClick, onFormSubmit, onDeleteClick, onCancelClick }) {
     super();
     this._setState({ point, destination });
     this.#allDestinations = allDestinations;
     this.#allOffers = allOffers;
+    this.#isEditMode = isEditMode;
     this.#onRollupClick = onRollupClick;
     this.#onFormSubmit = onFormSubmit;
     this.#onDeleteClick = onDeleteClick;
+    this.#onCancelClick = onCancelClick;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this._state.point, this._state.destination, this.#allDestinations, this.#allOffers);
+    return createEditFormTemplate(this._state.point, this._state.destination, this.#allDestinations, this.#allOffers, this.#isEditMode);
   }
 
   #setDatePickers() {
@@ -177,9 +181,11 @@ export default class EditFormView extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#rollupClickHandler);
+    if (this.#isEditMode) {
+      this.element
+        .querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#rollupClickHandler);
+    }
 
     this.element
       .querySelector('.event--edit')
@@ -200,7 +206,7 @@ export default class EditFormView extends AbstractStatefulView {
 
     this.element
       .querySelector('.event__reset-btn')
-      .addEventListener('click', this.#deleteClickHandler);
+      .addEventListener('click', this.#isEditMode ? this.#deleteClickHandler : this.#cancelClickHandler);
 
     this.#setDatePickers();
   }
@@ -250,6 +256,7 @@ export default class EditFormView extends AbstractStatefulView {
       return;
     }
     this.updateElement({
+      point: {...this._state.point, destination: foundDestination.id},
       destination: foundDestination
     });
   };
@@ -287,5 +294,10 @@ export default class EditFormView extends AbstractStatefulView {
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
     this.#onDeleteClick();
+  };
+
+  #cancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onCancelClick();
   };
 }
