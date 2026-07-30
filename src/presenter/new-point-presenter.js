@@ -58,14 +58,12 @@ export default class NewPointPresenter {
   }
 
   setAborting() {
-    const resetFormState = () => {
-      this.#formComponent.updateElement({
-        isSaving: false,
-        isDeleting: false,
-      });
-    };
+    this.#formComponent.updateElement({
+      isSaving: false,
+      isDeleting: false,
+    });
 
-    this.#formComponent.shake(resetFormState);
+    this.#formComponent.shake();
   }
 
   #escKeyDownHandler = (evt) => {

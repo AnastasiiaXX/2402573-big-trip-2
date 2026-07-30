@@ -99,18 +99,15 @@ export default class PointPresenter {
 
   setAborting() {
     if (this.#mode === Mode.DEFAULT) {
-      this.#editPointComponent.shake();
+      this.#pointComponent.shake();
       return;
     }
 
-    const resetFormState = () => {
-      this.#editPointComponent.updateElement({
-        isSaving: false,
-        isDeleting: false,
-      });
-    };
-
-    this.#editPointComponent.shake(resetFormState);
+    this.#editPointComponent.updateElement({
+      isSaving: false,
+      isDeleting: false,
+    });
+    this.#editPointComponent.shake();
   }
 
   #replacePointToForm = () => {

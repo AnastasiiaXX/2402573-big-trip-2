@@ -117,11 +117,11 @@ function createEditFormTemplate(state, allDestinations, allOffers, isEditMode) {
                     >
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit" ${disabledAttribute}>${isSaving ? 'Saving...' : 'Save'}</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit" >${isSaving ? 'Saving...' : 'Save'}</button>
                     ${isEditMode ?
-    `<button class="event__reset-btn" type="reset" ${disabledAttribute}>${isDeleting ? 'Deleting...' : 'Delete'}</button>` :
-    `<button class="event__reset-btn " type="reset" ${disabledAttribute}>Cancel</button>`}
-                    ${isEditMode ? `<button class="event__rollup-btn" type="button" ${disabledAttribute}>
+    `<button class="event__reset-btn" type="reset" >${isDeleting ? 'Deleting...' : 'Delete'}</button>` :
+    '<button class="event__reset-btn" type="reset" >Cancel</button>'}
+                    ${isEditMode ? `<button class="event__rollup-btn" type="button" >
                     <span class="visually-hidden">Open event</span>
                   </button>` : ''}
                 </header>
