@@ -38,8 +38,8 @@ export default class BoardPresenter {
 
     this.#newPointPresenter = new NewPointPresenter({
       container: this.#listComponent.element,
-      allDestinations: this.#destinationsModel.destinations,
-      allOffers: this.#offersModel.offers,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel,
       onDataChange: this.#handleViewAction,
       onFormClose: this.#handleNewPointFormClose,
     });
@@ -126,6 +126,7 @@ export default class BoardPresenter {
       presenter.destroy();
     });
     this.#pointPresenters.clear();
+    this.#newPointPresenter.destroy();
     remove(this.#sortComponent);
     remove(this.#emptyListComponent);
     if (resetSortType) {

@@ -116,7 +116,6 @@ export default class PointPresenter {
       UpdateType.MINOR,
       point
     );
-    this.#replaceFormToPoint();
   };
 
   #onDeleteClick = () => {
@@ -125,6 +124,5 @@ export default class PointPresenter {
       UpdateType.MINOR,
       this.#point
     );
-    this.#replaceFormToPoint();
   };
 }
