@@ -7,11 +7,13 @@ import SortView from '../view/sort-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class BoardPresenter {
   #listComponent = new ListView();
   #sortComponent = null;
   #emptyListComponent = null;
+  #loadingComponent = new LoadingView();
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
   #container = null;
@@ -22,6 +24,7 @@ export default class BoardPresenter {
   #newPointPresenter = null;
   #newPointButton = null;
   #pointPresenters = new Map();
+  #isLoading = true;
 
   constructor({ container, pointsModel, destinationsModel, offersModel, filtersModel, newPointButton }) {
     this.#container = container;
@@ -66,7 +69,6 @@ export default class BoardPresenter {
 
   init() {
     this.#renderList();
-    this.#newPointButton.disabled = false;
   }
 
   #getPointData(point) {
@@ -95,6 +97,10 @@ export default class BoardPresenter {
   }
 
   #renderList() {
+    if (this.#isLoading) {
+      render(this.#loadingComponent, this.#container);
+      return;
+    }
     if (this.points.length === 0) {
       this.#emptyListComponent = new EmptyListView({ filterType: this.#filterType });
       render(this.#emptyListComponent, this.#container);
@@ -159,6 +165,11 @@ export default class BoardPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({ resetSortType: true });
+        this.#renderList();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#renderList();
         break;
     }
