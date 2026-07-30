@@ -81,6 +81,35 @@ export default class PointPresenter {
     remove(this.#editPointComponent);
   }
 
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake();
+      return;
+    }
+
+    this.#editPointComponent.updateElement({
+      isSaving: false,
+      isDeleting: false,
+    });
+    this.#editPointComponent.shake();
+  }
+
   #replacePointToForm = () => {
     replace(this.#editPointComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -116,7 +145,6 @@ export default class PointPresenter {
       UpdateType.MINOR,
       point
     );
-    this.#replaceFormToPoint();
   };
 
   #onDeleteClick = () => {
@@ -125,6 +153,5 @@ export default class PointPresenter {
       UpdateType.MINOR,
       this.#point
     );
-    this.#replaceFormToPoint();
   };
 }

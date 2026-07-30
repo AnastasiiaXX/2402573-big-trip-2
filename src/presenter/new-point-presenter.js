@@ -15,24 +15,24 @@ const EMPTY_POINT = {
 export default class NewPointPresenter {
   #container = null;
   #formComponent = null;
-  #allOffers = [];
-  #allDestinations = [];
+  #offersModel = null;
+  #destinationsModel = null;
   #handleDataChange = null;
   #handleFormClose = null;
 
-  constructor({ container, allOffers, allDestinations, onDataChange, onFormClose }) {
+  constructor({ container, offersModel, destinationsModel, onDataChange, onFormClose }) {
     this.#container = container;
     this.#handleDataChange = onDataChange;
-    this.#allOffers = allOffers;
-    this.#allDestinations = allDestinations;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
     this.#handleFormClose = onFormClose;
   }
 
   init() {
     this.#formComponent = new EditFormView({
       point: EMPTY_POINT,
-      allOffers: this.#allOffers,
-      allDestinations: this.#allDestinations,
+      allOffers: this.#offersModel.offers,
+      allDestinations: this.#destinationsModel.destinations,
       onFormSubmit: this.#onFormSubmit,
       onCancelClick: this.#cancelClickHandler,
       isEditMode: false,
@@ -51,6 +51,21 @@ export default class NewPointPresenter {
     this.#handleFormClose();
   }
 
+  setSaving() {
+    this.#formComponent.updateElement({
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    this.#formComponent.updateElement({
+      isSaving: false,
+      isDeleting: false,
+    });
+
+    this.#formComponent.shake();
+  }
+
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
@@ -64,8 +79,6 @@ export default class NewPointPresenter {
       UpdateType.MINOR,
       point
     );
-
-    this.destroy();
   };
 
   #cancelClickHandler = () => {

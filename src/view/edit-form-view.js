@@ -5,13 +5,13 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
-function createTypesTemplate(currentType, id) {
+function createTypesTemplate(currentType, id, disabledAttribute) {
   return POINT_TYPES.map((type) => {
     const isCheckedType = currentType === type ? 'checked' : '';
     return (
       `
       <div class="event__type-item">
-       <input id="event-type-${type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${isCheckedType}>
+       <input id="event-type-${type}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${isCheckedType} ${disabledAttribute}>
         <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${id}">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
        </div>
       `
@@ -26,13 +26,13 @@ function createDestinationsTemplate(allDestinations) {
     .join('');
 }
 
-function createOffersTemplate(allOffers, checkedIds) {
+function createOffersTemplate(allOffers, checkedIds, disabledAttribute) {
   return allOffers
     .map((offer) => {
       const isCheckedOffer = checkedIds.includes(offer.id) ? 'checked' : '';
       return `
          <div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" data-offer-id="${offer.id}" ${isCheckedOffer}>
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" data-offer-id="${offer.id}" ${isCheckedOffer} ${disabledAttribute}>
            <label class="event__offer-label" for="event-offer-${offer.id}">
            <span class="event__offer-title">${he.encode(offer.title)}</span>
             &plus;&euro;&nbsp;
@@ -44,10 +44,12 @@ function createOffersTemplate(allOffers, checkedIds) {
     .join('');
 }
 
-function createEditFormTemplate(point, destination, allDestinations, allOffers, isEditMode) {
+function createEditFormTemplate(state, allDestinations, allOffers, isEditMode) {
+  const { point, destination, isSaving, isDeleting } = state;
   const { basePrice, dateFrom, dateTo, type, id } = point;
   const offersByType = allOffers.find((offer) => offer.type === type);
   const typeOffers = offersByType?.offers ?? [];
+  const disabledAttribute = (isSaving || isDeleting) ? 'disabled' : '';
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -57,12 +59,12 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers, 
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox" ${disabledAttribute}>
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-                        ${createTypesTemplate(type, id)}
+                        ${createTypesTemplate(type, id, disabledAttribute)}
                       </fieldset>
                     </div>
                   </div>
@@ -71,7 +73,15 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers, 
                     <label class="event__label  event__type-output" for="event-destination-${id}">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${he.encode(destination?.name ?? '')}" list="destination-list-${id}">
+                    <input
+                    class="event__input  event__input--destination"
+                    id="event-destination-${id}"
+                    type="text" name="event-destination"
+                    value="${he.encode(destination?.name ?? '')}"
+                    list="destination-list-${id}"
+                    autocomplete="off"
+                    ${disabledAttribute}
+                    >
                     <datalist id="destination-list-${id}">
                       ${createDestinationsTemplate(allDestinations)}
                     </datalist>
@@ -79,10 +89,16 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers, 
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-${id}">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${humanizeFullDate(dateFrom)}">
+                    <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time"
+                    value="${humanizeFullDate(dateFrom)}"
+                    ${disabledAttribute}
+                    >
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-${id}">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${humanizeFullDate(dateTo)}">
+                    <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time"
+                    value="${humanizeFullDate(dateTo)}"
+                    ${disabledAttribute}
+                    >
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -90,12 +106,22 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers, 
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-${id}" type="number" min="1" name="event-price" value="${basePrice}">
+                    <input
+                    class="event__input  event__input--price"
+                    id="event-price-${id}"
+                    type="number"
+                    min="1"
+                    name="event-price"
+                    value="${basePrice}"
+                    ${disabledAttribute}
+                    >
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">${isEditMode ? 'Delete' : 'Cancel'}</button>
-                  ${isEditMode ? `<button class="event__rollup-btn" type="button">
+                  <button class="event__save-btn  btn  btn--blue" type="submit" >${isSaving ? 'Saving...' : 'Save'}</button>
+                    ${isEditMode ?
+    `<button class="event__reset-btn" type="reset" >${isDeleting ? 'Deleting...' : 'Delete'}</button>` :
+    '<button class="event__reset-btn" type="reset" >Cancel</button>'}
+                    ${isEditMode ? `<button class="event__rollup-btn" type="button" >
                     <span class="visually-hidden">Open event</span>
                   </button>` : ''}
                 </header>
@@ -104,17 +130,18 @@ function createEditFormTemplate(point, destination, allDestinations, allOffers, 
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                     <div class="event__available-offers">
-                     ${createOffersTemplate(typeOffers, point.offers)}
+                     ${createOffersTemplate(typeOffers, point.offers, disabledAttribute)}
                     </div>
                   </section>` : ''}
 
                   ${destination && (destination.description || (destination.pictures && destination.pictures.length)) ? `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${he.encode(destination.description)}</p>
-                    <div class="event__photos-container">
-                      <div class="event__photos-tape">
-                        ${destination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${he.encode(picture.description)}">`).join('')}
-                      </div>
+                    ${destination.pictures.length > 0 ? `<div class="event__photos-container">
+    <div class="event__photos-tape">
+  ${destination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${he.encode(picture.description)}">`).join('')}
+  </div>` : ''}
+
                      </div>
                   </section>` : ''}
                 </section>
@@ -135,7 +162,7 @@ export default class EditFormView extends AbstractStatefulView {
 
   constructor({ point, destination, allDestinations, allOffers, isEditMode, onRollupClick, onFormSubmit, onDeleteClick, onCancelClick }) {
     super();
-    this._setState({ point, destination });
+    this._setState({ point, destination, ...this.#setDefaultFlags() });
     this.#allDestinations = allDestinations;
     this.#allOffers = allOffers;
     this.#isEditMode = isEditMode;
@@ -148,7 +175,11 @@ export default class EditFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createEditFormTemplate(this._state.point, this._state.destination, this.#allDestinations, this.#allOffers, this.#isEditMode);
+    return createEditFormTemplate(this._state, this.#allDestinations, this.#allOffers, this.#isEditMode);
+  }
+
+  #setDefaultFlags() {
+    return { isSaving: false, isDeleting: false };
   }
 
   #setDatePickers() {
@@ -220,7 +251,8 @@ export default class EditFormView extends AbstractStatefulView {
     this.updateElement(
       {
         point,
-        destination
+        destination,
+        ...this.#setDefaultFlags()
       }
     );
   }

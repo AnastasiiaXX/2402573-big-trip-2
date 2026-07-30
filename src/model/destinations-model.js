@@ -11,6 +11,7 @@ export default class DestinationsModel {
       this.#destinations = await this.#tripApiService.destinations;
     } catch (err) {
       this.#destinations = [];
+      throw err;
     }
   }
 
