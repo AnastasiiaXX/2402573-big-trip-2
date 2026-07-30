@@ -13,7 +13,7 @@ export default class BoardPresenter {
   #listComponent = new ListView();
   #sortComponent = null;
   #emptyListComponent = null;
-  #loadingComponent = null;
+  #loadingComponent = new LoadingView();
   #currentSortType = SortType.DEFAULT;
   #filterType = FilterType.EVERYTHING;
   #container = null;
@@ -69,7 +69,6 @@ export default class BoardPresenter {
 
   init() {
     this.#renderList();
-    this.#newPointButton.disabled = false;
   }
 
   #getPointData(point) {
@@ -99,7 +98,6 @@ export default class BoardPresenter {
 
   #renderList() {
     if (this.#isLoading) {
-      this.#loadingComponent = new LoadingView();
       render(this.#loadingComponent, this.#container);
       return;
     }

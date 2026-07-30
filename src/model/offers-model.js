@@ -1,14 +1,21 @@
-
 export default class OffersModel {
   #offers = [];
+  #tripApiService = null;
+
+  constructor({ tripApiService }) {
+    this.#tripApiService = tripApiService;
+  }
+
+  async init() {
+    try {
+      this.#offers = await this.#tripApiService.offers;
+    } catch (err) {
+      this.#offers = [];
+    }
+  }
 
   get offers() {
     return this.#offers;
-  }
-
-  getByType(type) {
-    const group = this.#offers.find((offer) => offer.type === type);
-    return group?.offers ?? [];
   }
 
   getById(id) {
