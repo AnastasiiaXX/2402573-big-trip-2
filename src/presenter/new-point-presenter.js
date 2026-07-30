@@ -51,6 +51,23 @@ export default class NewPointPresenter {
     this.#handleFormClose();
   }
 
+  setSaving() {
+    this.#formComponent.updateElement({
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#formComponent.updateElement({
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#formComponent.shake(resetFormState);
+  }
+
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();

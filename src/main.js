@@ -47,6 +47,9 @@ Promise.all([
   offersModel.init(),
 ])
   .then(() => pointsModel.init())
+  .catch(() => {
+    boardPresenter.showLoadError();
+  })
   .finally(() => {
     newPointButton.disabled = false;
   });
