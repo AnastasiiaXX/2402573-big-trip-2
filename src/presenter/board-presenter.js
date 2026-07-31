@@ -17,7 +17,7 @@ export default class BoardPresenter {
   #emptyListComponent = null;
   #failedToLoadComponent = new FailedToLoadView();
   #loadingComponent = new LoadingView();
-  #currentSortType = SortType.DEFAULT;
+  #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERYTHING;
   #container = null;
   #pointsModel = null;
@@ -143,7 +143,7 @@ export default class BoardPresenter {
     remove(this.#sortComponent);
     remove(this.#emptyListComponent);
     if (resetSortType) {
-      this.#currentSortType = SortType.DEFAULT;
+      this.#currentSortType = SortType.DAY;
     }
   }
 
