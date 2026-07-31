@@ -149,7 +149,7 @@ function createEditFormTemplate(state, allDestinations, allOffers, isEditMode) {
             </li>`;
 }
 
-export default class EditFormView extends AbstractStatefulView {
+export default class PointFormView extends AbstractStatefulView {
   #allOffers = null;
   #allDestinations = null;
   #onRollupClick = null;

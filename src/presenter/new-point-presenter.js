@@ -1,6 +1,6 @@
 import {render, remove, RenderPosition} from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
-import EditFormView from '../view/edit-form-view.js';
+import PointFormView from '../view/point-form-view.js';
 
 const EMPTY_POINT = {
   type: 'flight',
@@ -29,7 +29,7 @@ export default class NewPointPresenter {
   }
 
   init() {
-    this.#formComponent = new EditFormView({
+    this.#formComponent = new PointFormView({
       point: EMPTY_POINT,
       allOffers: this.#offersModel.offers,
       allDestinations: this.#destinationsModel.destinations,

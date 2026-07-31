@@ -1,5 +1,6 @@
-import { render, replace, remove } from '../framework/render.js';
+import { render, replace, remove, RenderPosition } from '../framework/render.js';
 import { humanizeTripInfoDate } from '../utils/date.js';
+import { sortByDay } from '../utils/sort.js';
 import TripInfoView from '../view/trip-info-view.js';
 
 export default class TripInfoPresenter {
@@ -23,7 +24,7 @@ export default class TripInfoPresenter {
   }
 
   #renderComponent() {
-    const points = [...this.#pointsModel.points].sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+    const points = [...this.#pointsModel.points].sort(sortByDay);
 
     if (points.length === 0) {
       remove(this.#component);
@@ -40,7 +41,7 @@ export default class TripInfoPresenter {
     });
 
     if (prevComponent === null) {
-      render(this.#component, this.#container, 'afterbegin');
+      render(this.#component, this.#container, RenderPosition.AFTERBEGIN);
       return;
     }
 

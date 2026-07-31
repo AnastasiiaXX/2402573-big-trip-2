@@ -11,7 +11,6 @@ const AUTHORIZATION = 'Basic gg6htysww';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const filterContainer = document.querySelector('.trip-controls__filters');
-const newPointButton = document.querySelector('.trip-main__event-add-btn');
 const mainElement = document.querySelector('.trip-events');
 const tripMainElement = document.querySelector('.trip-main');
 
@@ -30,11 +29,11 @@ const filterPresenter = new FilterPresenter({
 
 const boardPresenter = new BoardPresenter({
   container: mainElement,
+  newPointButtonContainer: tripMainElement,
   pointsModel,
   destinationsModel,
   offersModel,
   filtersModel,
-  newPointButton,
 });
 
 const tripInfoPresenter = new TripInfoPresenter({
@@ -48,8 +47,6 @@ filterPresenter.init();
 boardPresenter.init();
 tripInfoPresenter.init();
 
-newPointButton.disabled = true;
-
 // Справочники (пункты назначения и офферы) загружаются до точек,
 // так как точки ссылаются на них по id
 Promise.all([
@@ -59,7 +56,5 @@ Promise.all([
   .then(() => pointsModel.init())
   .catch(() => {
     boardPresenter.showLoadError();
-  })
-  .finally(() => {
-    newPointButton.disabled = false;
   });
+

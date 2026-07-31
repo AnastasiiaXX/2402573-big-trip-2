@@ -1,6 +1,6 @@
 import { render, replace, remove } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
-import EditFormView from '../view/edit-form-view.js';
+import PointFormView from '../view/point-form-view.js';
 import PointView from '../view/point-view.js';
 
 const Mode = {
@@ -45,7 +45,7 @@ export default class PointPresenter {
         onFavoriteClick: this.#onFavoriteClick,
       });
 
-    this.#editPointComponent = new EditFormView({
+    this.#editPointComponent = new PointFormView({
       point, destination, allOffers, allDestinations, checkedOffers,
       isEditMode: true,
       onRollupClick: this.#replaceFormToPoint,

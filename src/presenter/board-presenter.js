@@ -7,6 +7,7 @@ import ListView from '../view/list-view.js';
 import SortView from '../view/sort-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FailedToLoadView from '../view/failed-to-load-view.js';
+import NewPointButtonView from '../view/new-point-button-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
@@ -25,16 +26,16 @@ export default class BoardPresenter {
   #offersModel = null;
   #filtersModel = null;
   #newPointPresenter = null;
-  #newPointButton = null;
   #pointPresenters = new Map();
   #isLoading = true;
   #isLoadFailed = false;
+  #newPointButtonComponent = null;
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
-  constructor({ container, pointsModel, destinationsModel, offersModel, filtersModel, newPointButton }) {
+  constructor({ container, pointsModel, destinationsModel, offersModel, filtersModel, newPointButtonContainer }) {
     this.#container = container;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
@@ -51,9 +52,10 @@ export default class BoardPresenter {
       onDataChange: this.#handleViewAction,
       onFormClose: this.#handleNewPointFormClose,
     });
-
-    this.#newPointButton = newPointButton;
-    this.#newPointButton.addEventListener('click', this.#handleNewPointButtonClick);
+    this.#newPointButtonComponent = new NewPointButtonView({
+      onClick: this.#handleNewPointButtonClick,
+    });
+    render(this.#newPointButtonComponent, newPointButtonContainer);
   }
 
   get points() {
@@ -76,6 +78,13 @@ export default class BoardPresenter {
   }
 
   init() {
+    this.#renderList();
+  }
+
+  showLoadError() {
+    this.#isLoadFailed = true;
+    this.#isLoading = false;
+    remove(this.#loadingComponent);
     this.#renderList();
   }
 
@@ -147,13 +156,6 @@ export default class BoardPresenter {
     }
   }
 
-  showLoadError() {
-    this.#isLoadFailed = true;
-    this.#isLoading = false;
-    remove(this.#loadingComponent);
-    this.#renderList();
-  }
-
   #handleModeChange = () => {
     this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
@@ -167,7 +169,7 @@ export default class BoardPresenter {
         this.#pointPresenters.get(update.id).setSaving();
         try {
           await this.#pointsModel.updatePoint(updateType, update);
-        } catch (err) {
+        } catch {
           this.#pointPresenters.get(update.id).setAborting();
         }
         break;
@@ -175,7 +177,7 @@ export default class BoardPresenter {
         this.#newPointPresenter.setSaving();
         try {
           await this.#pointsModel.addPoint(updateType, update);
-        } catch (err) {
+        } catch {
           this.#newPointPresenter.setAborting();
         }
         break;
@@ -183,7 +185,7 @@ export default class BoardPresenter {
         this.#pointPresenters.get(update.id).setDeleting();
         try {
           await this.#pointsModel.deletePoint(updateType, update);
-        } catch (err) {
+        } catch {
           this.#pointPresenters.get(update.id).setAborting();
         }
         break;
@@ -232,17 +234,15 @@ export default class BoardPresenter {
     remove(this.#emptyListComponent);
     render(this.#listComponent, this.#container);
     this.#newPointPresenter.init();
-    this.#newPointButton.disabled = true;
+    this.#newPointButtonComponent.setDisabled(true);
   };
 
   #handleNewPointFormClose = () => {
-    this.#newPointButton.disabled = false;
+    this.#newPointButtonComponent.setDisabled(false);
     if (this.points.length === 0) {
       remove(this.#listComponent);
       this.#emptyListComponent = new EmptyListView({ filterType: this.#filterType });
       render(this.#emptyListComponent, this.#container);
-      return;
     }
-    this.#newPointButton.disabled = false;
   };
 }
