@@ -12,6 +12,8 @@ export const humanizeTime = (time) => time ? dayjs(time).format(TIME_FORMAT) : '
 
 export const humanizeFullDate = (date) => date ? dayjs(date).format(DATE_AND_TIME_FORMAT) : '';
 
+export const humanizeTripInfoDate = (date) => dayjs(date).format('D MMM');
+
 export const countDuration = (dateTo, dateFrom) => {
   const diff = dayjs.duration(dayjs(dateTo).diff(dayjs(dateFrom)));
 

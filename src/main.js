@@ -5,6 +5,7 @@ import FiltersModel from './model/filters-model.js';
 import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import TripApiService from './trip-api-service.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
 
 const AUTHORIZATION = 'Basic gg6htysww';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
@@ -12,6 +13,7 @@ const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 const filterContainer = document.querySelector('.trip-controls__filters');
 const newPointButton = document.querySelector('.trip-main__event-add-btn');
 const mainElement = document.querySelector('.trip-events');
+const tripMainElement = document.querySelector('.trip-main');
 
 const tripApiService = new TripApiService(END_POINT, AUTHORIZATION);
 
@@ -35,8 +37,16 @@ const boardPresenter = new BoardPresenter({
   newPointButton,
 });
 
+const tripInfoPresenter = new TripInfoPresenter({
+  container: tripMainElement,
+  pointsModel,
+  destinationsModel,
+  offersModel,
+});
+
 filterPresenter.init();
 boardPresenter.init();
+tripInfoPresenter.init();
 
 newPointButton.disabled = true;
 
