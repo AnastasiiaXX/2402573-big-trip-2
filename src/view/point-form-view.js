@@ -1,4 +1,4 @@
-import {POINT_TYPES} from '../const.js';
+import { FIRST_DAY_OF_WEEK, FLATPICKR_DATE_FORMAT, POINT_TYPES } from '../const.js';
 import { humanizeFullDate } from '../utils/date.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
@@ -117,10 +117,10 @@ function createEditFormTemplate(state, allDestinations, allOffers, isEditMode) {
                     >
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit" >${isSaving ? 'Saving...' : 'Save'}</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
                     ${isEditMode ?
-    `<button class="event__reset-btn" type="reset" >${isDeleting ? 'Deleting...' : 'Delete'}</button>` :
-    '<button class="event__reset-btn" type="reset" >Cancel</button>'}
+    `<button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>` :
+    '<button class="event__reset-btn" type="reset">Cancel</button>'}
                     ${isEditMode ? `<button class="event__rollup-btn" type="button" >
                     <span class="visually-hidden">Open event</span>
                   </button>` : ''}
@@ -149,7 +149,7 @@ function createEditFormTemplate(state, allDestinations, allOffers, isEditMode) {
             </li>`;
 }
 
-export default class EditFormView extends AbstractStatefulView {
+export default class PointFormView extends AbstractStatefulView {
   #allOffers = null;
   #allDestinations = null;
   #onRollupClick = null;
@@ -176,40 +176,6 @@ export default class EditFormView extends AbstractStatefulView {
 
   get template() {
     return createEditFormTemplate(this._state, this.#allDestinations, this.#allOffers, this.#isEditMode);
-  }
-
-  #setDefaultFlags() {
-    return { isSaving: false, isDeleting: false };
-  }
-
-  #setDatePickers() {
-    const [dateFrom, dateTo] = this.element.querySelectorAll('.event__input--time');
-    const dateConfig = {
-      dateFormat: 'd/m/y H:i',
-      enableTime: true,
-      locale: {firstDayOfWeek: 1},
-      'time_24hr': true
-    };
-
-    this.#datePickerFrom = flatpickr(
-      dateFrom,
-      {
-        ...dateConfig,
-        defaultDate: this._state.point.dateFrom,
-        onClose: this.#OnCloseDateFrom,
-        maxDate: this._state.point.dateTo
-      }
-    );
-
-    this.#datePickerTo = flatpickr(
-      dateTo,
-      {
-        ...dateConfig,
-        defaultDate: this._state.point.dateTo,
-        onClose: this.#OnCloseDateTo,
-        minDate: this._state.point.dateFrom
-      }
-    );
   }
 
   _restoreHandlers() {
@@ -271,6 +237,40 @@ export default class EditFormView extends AbstractStatefulView {
     }
   }
 
+  #setDefaultFlags() {
+    return { isSaving: false, isDeleting: false };
+  }
+
+  #setDatePickers() {
+    const [dateFrom, dateTo] = this.element.querySelectorAll('.event__input--time');
+    const dateConfig = {
+      dateFormat: FLATPICKR_DATE_FORMAT,
+      enableTime: true,
+      locale: {firstDayOfWeek: FIRST_DAY_OF_WEEK},
+      'time_24hr': true
+    };
+
+    this.#datePickerFrom = flatpickr(
+      dateFrom,
+      {
+        ...dateConfig,
+        defaultDate: this._state.point.dateFrom,
+        onClose: this.#onCloseDateFrom,
+        maxDate: this._state.point.dateTo
+      }
+    );
+
+    this.#datePickerTo = flatpickr(
+      dateTo,
+      {
+        ...dateConfig,
+        defaultDate: this._state.point.dateTo,
+        onClose: this.#onCloseDateTo,
+        minDate: this._state.point.dateFrom
+      }
+    );
+  }
+
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
     this.#onRollupClick();
@@ -330,12 +330,12 @@ export default class EditFormView extends AbstractStatefulView {
     });
   };
 
-  #OnCloseDateFrom = ([date]) => {
+  #onCloseDateFrom = ([date]) => {
     this._setState({point: {...this._state.point, dateFrom: date}});
     this.#datePickerTo.set('minDate', date);
   };
 
-  #OnCloseDateTo = ([date]) => {
+  #onCloseDateTo = ([date]) => {
     this._setState({point: {...this._state.point, dateTo: date}});
     this.#datePickerFrom.set('maxDate', date);
   };

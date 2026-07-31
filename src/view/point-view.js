@@ -69,6 +69,10 @@ export default class PointView extends AbstractView {
       .addEventListener('click', this.#favoriteClickHandler);
   }
 
+  get template() {
+    return createPointTemplate(this.#point, this.#destination, this.#checkedOffers);
+  }
+
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
     this.#onRollupClick();
@@ -78,8 +82,4 @@ export default class PointView extends AbstractView {
     evt.preventDefault();
     this.#onFavoriteClick();
   };
-
-  get template() {
-    return createPointTemplate(this.#point, this.#destination, this.#checkedOffers);
-  }
 }

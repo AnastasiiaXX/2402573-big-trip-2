@@ -5,13 +5,14 @@ import FiltersModel from './model/filters-model.js';
 import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import TripApiService from './trip-api-service.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
 
 const AUTHORIZATION = 'Basic gg6htysww';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const filterContainer = document.querySelector('.trip-controls__filters');
-const newPointButton = document.querySelector('.trip-main__event-add-btn');
 const mainElement = document.querySelector('.trip-events');
+const tripMainElement = document.querySelector('.trip-main');
 
 const tripApiService = new TripApiService(END_POINT, AUTHORIZATION);
 
@@ -28,17 +29,23 @@ const filterPresenter = new FilterPresenter({
 
 const boardPresenter = new BoardPresenter({
   container: mainElement,
+  newPointButtonContainer: tripMainElement,
   pointsModel,
   destinationsModel,
   offersModel,
   filtersModel,
-  newPointButton,
+});
+
+const tripInfoPresenter = new TripInfoPresenter({
+  container: tripMainElement,
+  pointsModel,
+  destinationsModel,
+  offersModel,
 });
 
 filterPresenter.init();
 boardPresenter.init();
-
-newPointButton.disabled = true;
+tripInfoPresenter.init();
 
 // Справочники (пункты назначения и офферы) загружаются до точек,
 // так как точки ссылаются на них по id
@@ -49,7 +56,5 @@ Promise.all([
   .then(() => pointsModel.init())
   .catch(() => {
     boardPresenter.showLoadError();
-  })
-  .finally(() => {
-    newPointButton.disabled = false;
   });
+

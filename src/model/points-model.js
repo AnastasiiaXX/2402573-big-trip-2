@@ -23,7 +23,7 @@ export default class PointsModel extends Observable {
     try {
       const points = await this.#tripApiService.points;
       this.#points = points.map(this.#adaptToClient);
-    } catch (err) {
+    } catch {
       this.#points = [];
       this._notify(UpdateType.ERROR);
     }
@@ -35,29 +35,13 @@ export default class PointsModel extends Observable {
     return this.#points.find((point) => point.id === id);
   }
 
-  #adaptToClient(point) {
-    const adaptedPoint = {...point,
-      basePrice: point['base_price'],
-      dateFrom: point['date_from'],
-      dateTo: point['date_to'],
-      isFavorite: point['is_favorite'],
-    };
-
-    delete adaptedPoint['base_price'];
-    delete adaptedPoint['date_from'];
-    delete adaptedPoint['date_to'];
-    delete adaptedPoint['is_favorite'];
-
-    return adaptedPoint;
-  }
-
   async addPoint(updateType, pointToAdd) {
     try {
       const response = await this.#tripApiService.addPoint(pointToAdd);
       const newPoint = this.#adaptToClient(response);
       this.#points = [newPoint, ...this.#points];
       this._notify(updateType, newPoint);
-    } catch (err) {
+    } catch {
       throw new Error('Cannot add point');
     }
   }
@@ -74,7 +58,7 @@ export default class PointsModel extends Observable {
       const updatedPoint = this.#adaptToClient(response);
       this.#points = updateItem(this.#points, updatedPoint);
       this._notify(updateType, updatedPoint);
-    } catch (err) {
+    } catch {
       throw new Error('Cannot update point');
     }
   }
@@ -89,8 +73,24 @@ export default class PointsModel extends Observable {
       await this.#tripApiService.deletePoint(pointToDelete);
       this.#points = this.#points.filter((item) => item.id !== pointToDelete.id);
       this._notify(updateType);
-    } catch (err) {
+    } catch {
       throw new Error('Cannot delete point');
     }
+  }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   }
 }
