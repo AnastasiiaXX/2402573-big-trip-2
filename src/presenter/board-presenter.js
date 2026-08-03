@@ -59,22 +59,8 @@ export default class BoardPresenter {
   }
 
   get points() {
-    this.#filterType = this.#filtersModel.filter;
-    const points = this.#pointsModel.points;
-    const filteredPoints = filter[this.#filterType](points);
-
-    let sorter = sortByDay;
-
-    switch (this.#currentSortType) {
-      case SortType.TIME:
-        sorter = sortByTime;
-        break;
-      case SortType.PRICE:
-        sorter = sortByPrice;
-        break;
-    }
-
-    return [...filteredPoints].sort(sorter);
+    const filteredPoints = filter[this.#filterType](this.#pointsModel.points);
+    return [...filteredPoints].sort(this.#getSorter());
   }
 
   init() {
@@ -101,6 +87,17 @@ export default class BoardPresenter {
     };
   }
 
+  #getSorter() {
+    switch (this.#currentSortType) {
+      case SortType.TIME:
+        return sortByTime;
+      case SortType.PRICE:
+        return sortByPrice;
+      default:
+        return sortByDay;
+    }
+  }
+
   #renderPoint(point) {
     const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(point);
 
@@ -117,16 +114,33 @@ export default class BoardPresenter {
     this.points.forEach((point) => this.#renderPoint(point));
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#container);
+  }
+
+  #renderFailedToLoad() {
+    render(this.#failedToLoadComponent, this.#container);
+  }
+
+  #renderSort() {
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#sortTypeChangeHandler,
+      currentSortType: this.#currentSortType
+    });
+    render(this.#sortComponent, this.#container);
+  }
+
   #renderList() {
     if (this.#isLoadFailed) {
-      render(this.#failedToLoadComponent, this.#container);
+      this.#renderFailedToLoad();
       return;
     }
 
     if (this.#isLoading) {
-      render(this.#loadingComponent, this.#container);
+      this.#renderLoading();
       return;
     }
+
     if (this.points.length === 0) {
       this.#emptyListComponent = new EmptyListView({ filterType: this.#filterType });
       render(this.#emptyListComponent, this.#container);
@@ -137,14 +151,6 @@ export default class BoardPresenter {
     render(this.#listComponent, this.#container);
 
     this.#renderPoints();
-  }
-
-  #renderSort() {
-    this.#sortComponent = new SortView({
-      onSortTypeChange: this.#sortTypeChangeHandler,
-      currentSortType: this.#currentSortType
-    });
-    render(this.#sortComponent, this.#container);
   }
 
   #clearBoard({resetSortType = false} = {}) {
@@ -199,6 +205,7 @@ export default class BoardPresenter {
   };
 
   #modelChangeHandler = (updateType, updatedPoint) => {
+    this.#filterType = this.#filtersModel.filter;
     switch (updateType) {
       case UpdateType.PATCH: {
         const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(updatedPoint);
