@@ -255,7 +255,7 @@ export default class PointFormView extends AbstractStatefulView {
       {
         ...dateConfig,
         defaultDate: this._state.point.dateFrom,
-        onClose: this.#onCloseDateFrom,
+        onClose: this.#dateFromCloseHandler,
         maxDate: this._state.point.dateTo
       }
     );
@@ -265,7 +265,7 @@ export default class PointFormView extends AbstractStatefulView {
       {
         ...dateConfig,
         defaultDate: this._state.point.dateTo,
-        onClose: this.#onCloseDateTo,
+        onClose: this.#dateToCloseHandler,
         minDate: this._state.point.dateFrom
       }
     );
@@ -330,12 +330,12 @@ export default class PointFormView extends AbstractStatefulView {
     });
   };
 
-  #onCloseDateFrom = ([date]) => {
+  #dateFromCloseHandler = ([date]) => {
     this._setState({point: {...this._state.point, dateFrom: date}});
     this.#datePickerTo.set('minDate', date);
   };
 
-  #onCloseDateTo = ([date]) => {
+  #dateToCloseHandler = ([date]) => {
     this._setState({point: {...this._state.point, dateTo: date}});
     this.#datePickerFrom.set('maxDate', date);
   };

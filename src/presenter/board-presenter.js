@@ -42,18 +42,18 @@ export default class BoardPresenter {
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
 
-    this.#pointsModel.addObserver(this.#handleModelChange);
-    this.#filtersModel.addObserver(this.#handleModelChange);
+    this.#pointsModel.addObserver(this.#modelChangeHandler);
+    this.#filtersModel.addObserver(this.#modelChangeHandler);
 
     this.#newPointPresenter = new NewPointPresenter({
       container: this.#listComponent.element,
       destinationsModel: this.#destinationsModel,
       offersModel: this.#offersModel,
-      onDataChange: this.#handleViewAction,
-      onFormClose: this.#handleNewPointFormClose,
+      onDataChange: this.#viewActionHandler,
+      onFormClose: this.#newPointFormCloseHandler,
     });
     this.#newPointButtonComponent = new NewPointButtonView({
-      onClick: this.#handleNewPointButtonClick,
+      onClick: this.#newPointButtonClickHandler,
     });
     render(this.#newPointButtonComponent, newPointButtonContainer);
   }
@@ -88,6 +88,10 @@ export default class BoardPresenter {
     this.#renderList();
   }
 
+  enableNewPointButton() {
+    this.#newPointButtonComponent.setDisabled(false);
+  }
+
   #getPointData(point) {
     return {
       destination: this.#destinationsModel.getById(point.destination),
@@ -102,8 +106,8 @@ export default class BoardPresenter {
 
     const pointPresenter = new PointPresenter({
       container: this.#listComponent.element,
-      onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange,
+      onDataChange: this.#viewActionHandler,
+      onModeChange: this.#modeChangeHandler,
     });
     pointPresenter.init(point, destination, checkedOffers, allOffers, allDestinations);
     this.#pointPresenters.set(point.id, pointPresenter);
@@ -137,7 +141,7 @@ export default class BoardPresenter {
 
   #renderSort() {
     this.#sortComponent = new SortView({
-      onSortTypeChange: this.#handleSortTypeChange,
+      onSortTypeChange: this.#sortTypeChangeHandler,
       currentSortType: this.#currentSortType
     });
     render(this.#sortComponent, this.#container);
@@ -156,12 +160,12 @@ export default class BoardPresenter {
     }
   }
 
-  #handleModeChange = () => {
+  #modeChangeHandler = () => {
     this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = async (actionType, updateType, update) => {
+  #viewActionHandler = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
 
     switch (actionType) {
@@ -194,7 +198,7 @@ export default class BoardPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handleModelChange = (updateType, updatedPoint) => {
+  #modelChangeHandler = (updateType, updatedPoint) => {
     switch (updateType) {
       case UpdateType.PATCH: {
         const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(updatedPoint);
@@ -219,7 +223,7 @@ export default class BoardPresenter {
     }
   };
 
-  #handleSortTypeChange = (sortType) => {
+  #sortTypeChangeHandler = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
@@ -228,16 +232,16 @@ export default class BoardPresenter {
     this.#renderList();
   };
 
-  #handleNewPointButtonClick = () => {
+  #newPointButtonClickHandler = () => {
     this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#handleModeChange();
+    this.#modeChangeHandler();
     remove(this.#emptyListComponent);
     render(this.#listComponent, this.#container);
     this.#newPointPresenter.init();
     this.#newPointButtonComponent.setDisabled(true);
   };
 
-  #handleNewPointFormClose = () => {
+  #newPointFormCloseHandler = () => {
     this.#newPointButtonComponent.setDisabled(false);
     if (this.points.length === 0) {
       remove(this.#listComponent);
