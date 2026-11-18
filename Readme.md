@@ -1,52 +1,48 @@
-# Проект «Большое путешествие»
+# Большое путешествие
 
-* Студент: [Анастасия Кононова](https://up.htmlacademy.ru/ecmascript-individual/2/user/2402573).
-* Наставник: [Евгения Подопригора](https://htmlacademy.ru/profile/id2387199).
+Учебный проект [HTML Academy](https://htmlacademy.ru): одностраничное приложение для планирования маршрута поездки. Создавайте точки маршрута, считайте стоимость путешествия и смотрите информацию о местах назначения.
 
----
+![Скриншот приложения](screenshots/main.png)
 
-_Не удаляйте и не изменяйте папки и файлы:_
-_`.editorconfig`, `.gitattributes`._
+## Что реализовано
 
----
+**Точки маршрута**
+- Список точек маршрута, загружаемых с сервера: тип, время и длительность, стоимость, дополнительные опции.
+- Добавление точки в избранное.
+- Создание новой точки маршрута, редактирование существующей точки, удаление точки.
 
-### Памятка
+**Фильтры и сортировка**
+- Фильтры Everything, Future, Present, Past, сообщения-заглушки для пустых списков.
+- Сортировка по дате, длительности и стоимости.
 
-#### 1. Зарегистрируйтесь на Гитхабе
+**Взаимодействие с сервером**
+- Загрузка, создание, изменение и удаление точек через API.
+- Индикация загрузки, блокировка интерфейса на время запроса.
 
-Если у вас ещё нет аккаунта на [github.com](https://github.com/join), скорее зарегистрируйтесь.
+**Дополнительно**
+- Название маршрута, даты и общая стоимость в шапке пересчитываются при изменении данных.
 
-#### 2. Создайте форк
+Вёрстка выполнена по готовому шаблону курса.
 
-Откройте репозиторий и нажмите кнопку «Fork» в правом верхнем углу. Репозиторий из Академии будет скопирован в ваш аккаунт.
+## Архитектура
 
-<img width="769" alt="Press 'Fork'" src="https://cloud.githubusercontent.com/assets/259739/20264045/a1ddbf40-aa7a-11e6-9a1a-724a1c0123c8.png">
+Паттерн MVP (Model — View — Presenter), приложение разбито на модели, представления и презентеры. Чистый JavaScript, без фреймворков.
 
-Получится вот так:
+## Стек
 
-<img width="769" alt="Forked" src="https://cloud.githubusercontent.com/assets/259739/20264122/f63219a6-aa7a-11e6-945a-89818fc7c014.png">
+JavaScript, Webpack, Babel, ESLint, [dayjs](https://day.js.org/), [flatpickr](https://flatpickr.js.org/), [he](https://github.com/mathiasbynens/he).
 
-#### 3. Клонируйте репозиторий на свой компьютер
+## Как запустить
 
-Будьте внимательны: нужно клонировать свой репозиторий (форк), а не репозиторий Академии. Также обратите внимание, что клонировать репозиторий нужно через SSH, а не через HTTPS. Нажмите зелёную кнопку в правой части экрана, чтобы скопировать SSH-адрес вашего репозитория:
+Требуется Node.js 20.
 
-<img width="769" alt="SSH" src="https://cloud.githubusercontent.com/assets/259739/20264180/42704126-aa7b-11e6-9ab4-73372b812a53.png">
-
-Клонировать репозиторий можно так:
-
+```bash
+git clone https://github.com/AnastasiiaXX/2402573-big-trip-2.git
+cd 2402573-big-trip-2
+npm install
+npm start
 ```
-git clone SSH-адрес_вашего_форка
-```
 
-Команда клонирует репозиторий на ваш компьютер и подготовит всё необходимое для старта работы.
+Проект откроется в браузере. Данные загружаются с сервера HTML Academy, нужен доступ в интернет.
 
-#### 4. Начинайте обучение!
-
----
-
-<a href="https://htmlacademy.ru/intensive/ecmascript"><img align="left" width="50" height="50" title="HTML Academy" src="https://up.htmlacademy.ru/static/img/intensive/ecmascript/logo-for-github.svg"></a>
-
-Репозиторий создан для обучения на профессиональном курсе «[JavaScript. Архитектура клиентских приложений](https://htmlacademy.ru/intensive/ecmascript)» от [HTML Academy](https://htmlacademy.ru).
-
-[check-image]: https://github.com/htmlacademy-ecmascript/2402573-big-trip-2/workflows/Project%20check/badge.svg?branch=master
-[check-url]: https://github.com/htmlacademy-ecmascript/2402573-big-trip-2/actions
+Сборка для production: `npm run build`.
